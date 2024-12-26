@@ -5,12 +5,16 @@ from django.contrib.auth.models import AbstractBaseUser, BaseUserManager, Permis
 from group.models import Group
 
 class UserManager(BaseUserManager):
-    def create_user(self, user_id, password=None):
+    def create_user(self, user_id, name=None, password=None, is_staff=False):
         if not user_id:
             raise ValueError('The User id must be set')
         
-        user = self.model(user_id=user_id)
-        user.set_password(password)
+        user = self.model(
+            user_id=user_id,
+            user_name=user_id if not name else name,
+            is_staff=is_staff,
+        )
+        user.set_password('password')
         user.save(using=self._db)
         return user
     
@@ -24,6 +28,7 @@ class UserManager(BaseUserManager):
            
 class User(AbstractBaseUser, PermissionsMixin):
     user_id = models.CharField(max_length=50, unique=True)
+    user_name = models.CharField(max_length=50)
     is_active = models.BooleanField(default=True)
     is_admin = models.BooleanField(default=False)
     is_staff = models.BooleanField(default=False)
@@ -36,6 +41,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     objects = UserManager()
 
     USERNAME_FIELD = "user_id"
+    REQUIRED_FIELDS = ["user_name"]
 
      
 

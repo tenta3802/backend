@@ -26,6 +26,10 @@ class GroupList(APIView):
 class GroupDetail(APIView):
     
     def delete(self, request, name):
-        group = get_object_or_404(Group, name=name)
-        group.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
+        if request.user.is_admin:
+            group = get_object_or_404(Group, name=name)
+            group.delete()
+            return Response(status=status.HTTP_204_NO_CONTENT)
+        return Response(status=status.HTTP_403_FORBIDDEN)
+
+

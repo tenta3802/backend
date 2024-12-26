@@ -4,11 +4,44 @@ from django.db import models
 from account.models import User
 
 class UserSerializer(serializers.ModelSerializer):
+    group_name = serializers.ReadOnlyField(source="group.name")
     class Meta:
         model = User
-        fileds = ('user_id', 'password')
+        fields = ('id', 'password', 'group_name', 'user_id', 'user_name', 'is_active', 'is_admin', 'is_staff', 'is_superuser')
+        extra_kwargs = {"password": {"write_only": True}}
 
-class UserInfoSerializer(serializers.ModelSerializer):
+class UserCreateSerialize(serializers.ModelSerializer):
     class Meta:
         model = User
-        filds = '__all__'
+        fields = ('user_id', 'password', 'is_staff')
+        extra_kwargs = {"password": {"write_only": True}}
+
+    def create(self, validated_data):
+        user = User.objects.create_user(**validated_data)
+        return user
+
+
+class UserDetailSerializer(serializers.ModelSerializer):
+    group_name = serializers.ReadOnlyField(source="group.name")
+    class Meta:
+        model = User
+        fields = ('id', 'password', 'group_name', 'user_id', 'user_name', 'is_active', 'is_admin', 'is_staff', 'is_superuser')
+
+class UserPasswordChangeSerializer(serializers.ModelSerializer):
+    current = serializers.CharField(write_only=True)
+    target = serializers.CharField(write_only=True)
+
+    class Meta:
+        model = User
+        fields = ('current', 'target', 'password')
+        extra_kwargs = {
+            'current': {'write_only': True},
+            'target': {'write_only': True},
+            'password' : {'write_only': True}
+        }
+    
+    def validate_current(self, current):
+        user = self.context['request'].user
+        if not user.check_password(current):
+            raise serializers.ValidationError("Current password is not matched")
+        return current
