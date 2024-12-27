@@ -35,6 +35,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     is_superuser = models.BooleanField(default=False)
     create_at = models.DateTimeField(auto_now_add=True)
     update_at = models.DateTimeField(auto_now_add=True)
+    count = models.IntegerField(default=0)
 
     group = models.ForeignKey(Group, on_delete=models.CASCADE, blank=True, null=True)
 

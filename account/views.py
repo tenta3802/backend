@@ -60,6 +60,7 @@ class CustomTokenObtainPairView(APIView):
 
         try:
             user = User.objects.get(user_id=user_id)
+            user.count = 0
         except User.DoesNotExist:
             return Response({"detail": "Does Not Exist User"}, status=status.HTTP_401_UNAUTHORIZED)
 
@@ -133,4 +134,18 @@ class UserPassword(APIView):
             user.save()
             return Response(status=status.HTTP_200_OK)
         return Response(status=status.HTTP_400_BAD_REQUEST)     
-        
+    
+class UserCount(APIView):
+
+    def put(self, request):
+        try:
+            user = User.objects.get(user_id=request.data.get('user_id'))
+        except User.DoesNotExist:
+            return Response({"detail": "Does Not Exist User"}, status=status.HTTP_401_UNAUTHORIZED)
+        if not user.is_admin:
+            if user.count < 5:
+                user.count += 1
+            if user.count == 5:
+                user.is_active = False
+            user.save()
+        return Response(status=status.HTTP_200_OK)

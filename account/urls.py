@@ -9,6 +9,7 @@ urlpatterns = [
     path('user/activate/', account.views.UserActivate.as_view(), name='userActivateChange'),
     path('user/name/', account.views.UserName.as_view(), name='userNameCharge'),
     path('user/password/', account.views.UserPassword.as_view(), name='userPWCharge'),
+    path('user/count/', account.views.UserCount.as_view(), name='userCountPlus'),
     path('token/', account.views.CustomTokenObtainPairView.as_view(), name='issueToken'),
 ]
 
