@@ -12,8 +12,10 @@ from datetime import timedelta
 
 from account.models import User
 from account.models import Group
-from account.serializers import UserSerializer, UserCreateSerialize, UserPasswordChangeSerializer
-
+from account.serializers import(UserSerializer,
+                                UserCreateSerialize,
+                                UserPasswordChangeSerializer,
+)
 
 class UserList(APIView):
     
@@ -27,7 +29,7 @@ class UserList(APIView):
         if serializers.is_valid():
             serializers.save()
             return Response(serializers.data, status=status.HTTP_201_CREATED)
-        return Response(serializers.errors, status=status.HTTP_404_NOT_FOUND)
+        return Response(serializers.errors, status=status.HTTP_401_UNAUTHORIZED)
     
 class UserDetail(APIView):
 
@@ -38,16 +40,6 @@ class UserDetail(APIView):
         user = self.get_object(user_id=user_id)
         serializers = UserSerializer(user)
         return Response(serializers.data)
-    
-    # put, delete는 로그인 기능 구현 후 테스트
-    def put(self, request, user_id):
-        serializer = UserPasswordChangeSerializer(data=request.data, context={'request': request})
-        if serializer.is_valid():
-            user = self.get_object(user_id=user_id)
-            user.set_password(request.data.get('target'))
-            user.save()
-            return Response(status=status.HTTP_200_OK)
-        return Response(status=status.HTTP_400_BAD_REQUEST)
     
     def delete(self, request, user_id):
         if request.user.is_admin:
@@ -75,7 +67,7 @@ class CustomTokenObtainPairView(APIView):
             return Response({"detail": "Invalid Password"}, status=status.HTTP_401_UNAUTHORIZED)
 
         refresh = RefreshToken.for_user(user)
-        refresh.access_token.set_exp(lifetime=timedelta(minutes=15))
+        refresh.access_token.set_exp(lifetime=timedelta(minutes=300))
         refresh.set_exp(lifetime=timedelta(days=7))
 
         return Response({
@@ -98,4 +90,47 @@ class UserJoinGruiop(APIView):
                 return Response(status=status.HTTP_400_BAD_REQUEST)
             queryset.update(group=group)
         return Response(status=status.HTTP_200_OK)
+    
+class UserActivate(APIView):
+
+    def put(self, request):
+        try:
+            user = User.objects.get(user_name=request.data.get('user_name'))
+        except User.DoesNotExist:
+            return Response({"detail": "Does Not Exist User"}, status=status.HTTP_401_UNAUTHORIZED)        
+        if user.is_active == 0:
+            user.is_active = 1 
+        user.save()
+        return Response(status=status.HTTP_200_OK)
+        
+class UserName(APIView):
+
+    def put(self, request):
+        current_name = request.user.user_name
+        target_name = request.data.get('user_name')
+        
+        try:
+            user = User.objects.get(user_name=current_name)
+        except User.DoesNotExist:
+            return Response({"detail": "Does Not Exist User"}, status=status.HTTP_401_UNAUTHORIZED)        
+        
+        users = User.objects.filter(user_name=target_name)
+        if users:
+            return Response({"detail": "Already Exist User Name"}, status=status.HTTP_400_BAD_REQUEST)        
+
+        if current_name != target_name:
+            user.user_name = target_name
+            user.save()
+        return Response(status=status.HTTP_200_OK)                 
+
+class UserPassword(APIView):
+
+    def put(self, request):
+        serializer = UserPasswordChangeSerializer(data=request.data, context={'request': request})
+        if serializer.is_valid():
+            user = User.objects.get(user_id=request.user.user_id)
+            user.set_password(request.data.get('target'))
+            user.save()
+            return Response(status=status.HTTP_200_OK)
+        return Response(status=status.HTTP_400_BAD_REQUEST)     
         

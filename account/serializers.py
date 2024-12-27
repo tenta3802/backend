@@ -20,24 +20,16 @@ class UserCreateSerialize(serializers.ModelSerializer):
         user = User.objects.create_user(**validated_data)
         return user
 
-
-class UserDetailSerializer(serializers.ModelSerializer):
-    group_name = serializers.ReadOnlyField(source="group.name")
-    class Meta:
-        model = User
-        fields = ('id', 'password', 'group_name', 'user_id', 'user_name', 'is_active', 'is_admin', 'is_staff', 'is_superuser')
-
 class UserPasswordChangeSerializer(serializers.ModelSerializer):
     current = serializers.CharField(write_only=True)
     target = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ('current', 'target', 'password')
+        fields = ('current', 'target')
         extra_kwargs = {
             'current': {'write_only': True},
             'target': {'write_only': True},
-            'password' : {'write_only': True}
         }
     
     def validate_current(self, current):

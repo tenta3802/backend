@@ -2,10 +2,13 @@ from django.urls import path
 import account.views
 
 urlpatterns = [
-    path('account/', account.views.UserList.as_view()),
-    path('account/register/', account.views.UserList.as_view()),
-    path('account/<str:user_id>/', account.views.UserDetail.as_view()),
-    path('account/join/group/', account.views.UserJoinGruiop.as_view()),
-    path('token/', account.views.CustomTokenObtainPairView.as_view()),
+    path('users/', account.views.UserList.as_view(), name='getUserList'),
+    path('user/register/', account.views.UserList.as_view(), name='registerUser'),
+    path('user/info/<str:user_id>/', account.views.UserDetail.as_view(), name='userDetail'),
+    path('user/join/group/', account.views.UserJoinGruiop.as_view(), name='userJoinGroup'),
+    path('user/activate/', account.views.UserActivate.as_view(), name='userActivateChange'),
+    path('user/name/', account.views.UserName.as_view(), name='userNameCharge'),
+    path('user/password/', account.views.UserPassword.as_view(), name='userPWCharge'),
+    path('token/', account.views.CustomTokenObtainPairView.as_view(), name='issueToken'),
 ]
 
