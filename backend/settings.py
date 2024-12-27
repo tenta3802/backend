@@ -40,6 +40,7 @@ INSTALLED_APPS = [
     'account',
     'file',
     'group',
+    'products',
     'rest_framework',
     'rest_framework_simplejwt',
 ]
