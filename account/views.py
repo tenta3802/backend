@@ -11,6 +11,7 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from datetime import timedelta
 
 from account.models import User
+from account.models import Group
 from account.serializers import UserSerializer, UserCreateSerialize, UserPasswordChangeSerializer
 
 
@@ -68,10 +69,10 @@ class CustomTokenObtainPairView(APIView):
         try:
             user = User.objects.get(user_id=user_id)
         except User.DoesNotExist:
-            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"detail": "Does Not Exist User"}, status=status.HTTP_401_UNAUTHORIZED)
 
         if not user.check_password(password):
-            return Response({"detail": "Invalid credentials"}, status=status.HTTP_401_UNAUTHORIZED)
+            return Response({"detail": "Invalid Password"}, status=status.HTTP_401_UNAUTHORIZED)
 
         refresh = RefreshToken.for_user(user)
         refresh.access_token.set_exp(lifetime=timedelta(minutes=15))
@@ -81,4 +82,20 @@ class CustomTokenObtainPairView(APIView):
             'access': str(refresh.access_token),
             'refresh': str(refresh),
         }, status=status.HTTP_200_OK)
+    
+class UserJoinGruiop(APIView):
+
+    def put(self, request):
+        login_user = request.user
+        login_user_group = get_object_or_404(Group, id=login_user.group_id)
+        queryset = User.objects.filter(user_id=request.data.get('user_id'))
+
+        if login_user.is_admin:
+            queryset.update(group=login_user_group)
+        else:
+            group = get_object_or_404(Group, name=request.data.get('group_name'))
+            if login_user.group_id != group.id:
+                return Response(status=status.HTTP_400_BAD_REQUEST)
+            queryset.update(group=group)
+        return Response(status=status.HTTP_200_OK)
         
