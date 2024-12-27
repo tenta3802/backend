@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'products',
     'rest_framework',
     'rest_framework_simplejwt',
+    'drf_spectacular',
 ]
 
 MIDDLEWARE = [
@@ -135,6 +136,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PERMISSION_CLASSES': [
         'rest_framework.permissions.IsAuthenticated',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 AUTH_USER_MODEL = 'account.User'
@@ -144,4 +146,18 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=1),     # 리프레시 토큰 유효 기간
     'ROTATE_REFRESH_TOKENS': False,                   # 리프레시 토큰 회전 사용 안함
     'BLACKLIST_AFTER_ROTATION': False,
+}
+
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Backend API Document',
+    'DESCRIPTION': 'Swagger API 문서입니다.',
+    'SWAGGER_UI_SETTINGS': {
+        'dom_id': '#swagger-ui',
+        'layout': 'BaseLayout', 
+        'deepLinking': True,  
+        'displayOperationId': True,
+        'filter': True,
+    },
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
 }
