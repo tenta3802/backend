@@ -3,7 +3,6 @@ import account.views
 
 urlpatterns = [
     path('user/', account.views.UserList.as_view(), name='getUserList'),
-    path('user/register/', account.views.UserList.as_view(), name='registerUser'),
     path('user/info/<str:user_id>/', account.views.UserDetail.as_view(), name='userDetail'),
     path('user/join/group/', account.views.UserJoinGruiop.as_view(), name='userJoinGroup'),
     path('user/activate/', account.views.UserActivate.as_view(), name='userActivateChange'),
