@@ -2,10 +2,16 @@
 """Django's command-line utility for administrative tasks."""
 import os
 import sys
-
+import debugpy
 
 def main():
     """Run administrative tasks."""
+    
+    debugpy.listen(("0.0.0.0", 5678))
+    print("Attached!!")
+
+    debugpy.wait_for_client()
+    
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
     try:
         from django.core.management import execute_from_command_line
