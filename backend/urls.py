@@ -11,6 +11,7 @@ urlpatterns = [
     path('', include('account.urls')),
     path('', include('group.urls')),
     path('', include('products.urls')),
+    path('', include('file.urls')),
     
     # Open API 자체를 조회
     path('api/docs/', SpectacularAPIView.as_view(), name='schema'),

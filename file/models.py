@@ -4,7 +4,7 @@ from group.models import Group
 
 class File(models.Model):
     name = models.CharField(max_length=128)
-    os = models.CharField(max_length=1)
+    os = models.CharField(max_length=1, default='')
     type = models.CharField(max_length=128)
     creted_at = models.DateTimeField(auto_now_add=True)
 
