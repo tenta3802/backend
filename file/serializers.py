@@ -5,7 +5,7 @@ class UploadFileSerializer(serializers.Serializer):
     upload_file = serializers.FileField(write_only=True)
 
     class Meta:
-        model: File
+        model = File
         fields = ['upload_file']
 
     def save(self, file):
@@ -20,3 +20,8 @@ class UploadFileSerializer(serializers.Serializer):
             group = user.group
         )
         return file
+    
+class GetFileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = File
+        fields = ('id', 'name')
