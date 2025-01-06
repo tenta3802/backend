@@ -7,16 +7,20 @@ from rest_framework.response import Response
 from rest_framework import status
 
 from django.shortcuts import get_object_or_404
+from django.core.files.uploadedfile import TemporaryUploadedFile
+from django.core.files.temp import NamedTemporaryFile
+from django.http import FileResponse
 
 from minio import Minio
+from pathlib import Path
 
+import json
 import base64
 from io import BytesIO
-
 minio = Minio(
            '127.0.0.1:9000',
-            access_key='tE2a63iV41ijm9u40DIW',
-            secret_key='pCmcpUjSetGXwVIViWa4jftKG1n8jFzvnXjH8G6G',
+            access_key='fs439xn8i6K9ayY83p4E',
+            secret_key='lOqT7PVXt9rTJgDEEeRmuk6C33BcECaW4KEApcVw',
             secure=False
         )
 
@@ -26,7 +30,7 @@ class UploadFile(APIView):
     def post(self, request):
         serializer = UploadFileSerializer(data=request.data, context={'request': request})
     
-        file_data = request.data.get('upload_file')
+        file_data: TemporaryUploadedFile = request.data.get('upload_file')
         if serializer.is_valid():
             serializer.save(file=file_data)
 
@@ -42,16 +46,18 @@ class UploadFile(APIView):
         return Response(status=status.HTTP_200_OK)
     
 class GetOriginFile(APIView):
-    
-    def get(self, request, file_id):
-        file = get_object_or_404(File, id=file_id)
-        serializer = GetFileSerializer(file)
+
+    def post(self, request):
+        file = get_object_or_404(File, id=request.data.get('file_id'))
+        file_name = file.name
+        file_type = Path(file_name).suffix
+        content_type = 'application/java-archive' if file_type == '.jar' else None
         
-        file_name = serializer.data.get('name')
-
-        response = minio.get_object(
-            'files',
-            file_name
-        )
-
-        return Response(response, status=status.HTTP_200_OK)
+        f = NamedTemporaryFile(mode="w+b")
+        try:
+            minio_file = minio.fget_object('files', file_name, f.name)        
+        except minio.error.S3Error as e:
+                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        response = FileResponse(open(f.name, "rb"), content_type=content_type)
+        response["Content-Disposition"] = "inline; filename=" + file_name
+        return response

@@ -315,4 +315,7 @@ pyrightconfig.json
 .history
 .ionide
 
+file/.minio.sys/
+file/files
+
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,django,visualstudiocode
