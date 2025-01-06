@@ -317,5 +317,6 @@ pyrightconfig.json
 
 file/.minio.sys/
 file/files
+file/dump-files
 
 # End of https://www.toptal.com/developers/gitignore/api/macos,python,django,visualstudiocode

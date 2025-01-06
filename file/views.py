@@ -61,3 +61,28 @@ class GetOriginFile(APIView):
         response = FileResponse(open(f.name, "rb"), content_type=content_type)
         response["Content-Disposition"] = "inline; filename=" + file_name
         return response
+
+class UploadDumpFile(APIView):
+    parser_classes = [MultiPartParser]
+
+    def post(self, request):
+        file: TemporaryUploadedFile = request.data.get('upload_file')
+        result = minio.fput_object(
+            "dump-files",
+            request.data.get('file_id'),
+            file.temporary_file_path()
+        )
+        return Response(status=status.HTTP_200_OK, data={'name':file.name})
+    
+class GetDumpFile(APIView):
+
+    def post(self, request):
+        file_id = str(request.data.get('file_id'))
+        f = NamedTemporaryFile(mode="w+b")
+        try:
+            minio_file = minio.fget_object('dump-files', file_id, f.name)        
+        except minio.error.S3Error as e:
+                return Response(status=status.HTTP_500_INTERNAL_SERVER_ERROR, data=str(e))
+        response = FileResponse(open(f.name, "rb"), content_type='application/zip')
+        response["Content-Disposition"] = "inline; filename=" + file_id + '.zip'
+        return response
