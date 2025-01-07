@@ -6,6 +6,13 @@ from django.conf import settings
 
 def main():
     """Run administrative tasks."""
+
+    import debugpy
+    if not os.getenv("COUNT"):
+        debugpy.listen(("0.0.0.0", 3000))
+        print("Attached!")
+        os.environ["COUNT"] = "1"
+
     os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'backend.settings')
     try:
         from django.core.management import execute_from_command_line
