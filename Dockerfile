@@ -16,4 +16,4 @@ RUN poetry install --no-dev --no-interaction --no-ansi
 
 COPY . .
 
-CMD ["poetry", "run", "python", "manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["poetry", "run", "gunicorn", "--bind", "0.0.0.0:8000", "backend.wsgi:application"]

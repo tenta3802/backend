@@ -14,6 +14,7 @@ drf-spectacular = "^0.28.0"
 debugpy = "^1.8.11"
 minio = "^7.2.13"
 django-environ = "^0.11.2"
+gunicorn = "^23.0.0"
 
 
 [build-system]
