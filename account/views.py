@@ -25,7 +25,7 @@ class UserList(APIView):
         description="user 전체 목록 반환<br>"
     )
     def get(self, request, *args, **kwargs):
-        users = User.objects.all()
+        users = User.objects.all().select_related('group')
         serializers = UserSerializer(users, many=True)
         return Response(serializers.data)
     
